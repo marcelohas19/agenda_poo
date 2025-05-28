@@ -22,9 +22,12 @@ public class AgendaController {
         this.view.nomedafuncaoalterar(new AlterarPessoaListener());
         this.view.nomedafuncaoexcluir(new ExcluirPessoaListener());
         this.view.nomedafuncaolimpar(nw LimpaListener());
+    }
 
-        
-
+    class AdicionarPessoaListener{
+        public void AdicionarPessoaListener(){
+            
+        }
     }
     public void iniciarAplicacao(){
         view.setVisible(true);
