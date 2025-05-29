@@ -3,9 +3,6 @@ import modell.*;
 import view.*;
 public class Main {
     public static void main(String[] args) throws Exception {
-
-        @Override
-        public void run() {
                 // 1. Cria o Model
                 AgendaModel model = new AgendaModel();
                 
@@ -17,6 +14,5 @@ public class Main {
                 
                 // 4. Inicia a aplicação (torna a View visível)
                 controller.iniciarAplicacao();
-            }
     }
 }
