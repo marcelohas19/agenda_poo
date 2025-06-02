@@ -2,6 +2,7 @@ package controller;
 
 import view.*;
 import modell.*;
+import modell.AgendaModel.Pessoa;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 
 
 public class AgendaController {  //cria a class de controle, e seus atributos.
-    private AgendaModell model;
+    private AgendaModel model;
     private AgendaView view;
 
     public void AgendaController(AgendaModell model, AgendaView view){ //construtor que rece a view e o model
