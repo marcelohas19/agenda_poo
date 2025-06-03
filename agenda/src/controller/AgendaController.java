@@ -54,10 +54,10 @@ public class AgendaController {  //cria a class de controle, e seus atributos.
     class ConsultaPessoasListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-            String codigo;
-            String nome = view.getNome;
+            String nome = view.getNome();
+            String codigo = view.getCodigo();
 
-            
+            if()
         }
     }
 
