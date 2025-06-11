@@ -1,0 +1,251 @@
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class AgendaCompleta extends JFrame {
+
+    private JTextField txtCodigo, txtNome, txtEndereco, txtTelefone, txtAnotacoes;
+    private JTable tabela;
+    private DefaultTableModel modeloTabela;
+
+    private List<Pessoa> pessoas = new ArrayList<>();
+    private int proximoCodigo = 1;
+
+    public AgendaCompleta() {
+        setTitle("Agenda de Contatos");
+        setSize(700, 500);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
+
+        JPanel painelDados = new JPanel(new GridLayout(5, 2, 8, 8));
+        painelDados.setBorder(new TitledBorder("Dados da Pessoa"));
+
+        txtCodigo = new JTextField(); txtCodigo.setEditable(false);
+        txtNome = new JTextField();
+        txtEndereco = new JTextField();
+        txtTelefone = new JTextField();
+        txtAnotacoes = new JTextField();
+
+        painelDados.add(new JLabel("Código:"));
+        painelDados.add(txtCodigo);
+        painelDados.add(new JLabel("Nome:"));
+        painelDados.add(txtNome);
+        painelDados.add(new JLabel("Endereço:"));
+        painelDados.add(txtEndereco);
+        painelDados.add(new JLabel("Telefone:"));
+        painelDados.add(txtTelefone);
+        painelDados.add(new JLabel("Anotações:"));
+        painelDados.add(txtAnotacoes);
+
+        add(painelDados, BorderLayout.NORTH);
+        JPanel painelTabela = new JPanel(new BorderLayout());
+        painelTabela.setBorder(new TitledBorder("Contatos Cadastrados"));
+
+        modeloTabela = new DefaultTableModel(new String[]{"Código", "Nome", "Telefone"}, 0);
+        tabela = new JTable(modeloTabela);
+        JScrollPane scroll = new JScrollPane(tabela);
+        painelTabela.add(scroll, BorderLayout.CENTER);
+
+        add(painelTabela, BorderLayout.CENTER);
+      
+        JPanel painelBotoes = new JPanel(new GridLayout(2, 3, 10, 10));
+        painelBotoes.setBorder(new TitledBorder("Ações"));
+
+        JButton btnCadastrar = new JButton("Cadastrar");
+        JButton btnConsultar = new JButton("Consultar");
+        JButton btnAlterar = new JButton("Alterar");
+        JButton btnExcluir = new JButton("Excluir");
+        JButton btnLimpar = new JButton("Limpar Campos");
+        JButton btnListar = new JButton("Listar Todos");
+
+        painelBotoes.add(btnCadastrar);
+        painelBotoes.add(btnConsultar);
+        painelBotoes.add(btnAlterar);
+        painelBotoes.add(btnExcluir);
+        painelBotoes.add(btnLimpar);
+        painelBotoes.add(btnListar);
+
+        add(painelBotoes, BorderLayout.SOUTH);
+
+        btnCadastrar.addActionListener(e -> cadastrar());
+        btnConsultar.addActionListener(e -> consultar());
+        btnAlterar.addActionListener(e -> alterar());
+        btnExcluir.addActionListener(e -> excluir());
+        btnLimpar.addActionListener(e -> limparCampos());
+        btnListar.addActionListener(e -> listarTodos());
+
+        setVisible(true);
+    }
+
+    private void cadastrar() {
+        String nome = txtNome.getText().trim();
+        String telefone = txtTelefone.getText().trim();
+
+        if (nome.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "O nome é obrigatório.");
+            return;
+        }
+
+        Pessoa p = new Pessoa(
+                proximoCodigo++,
+                nome,
+                txtEndereco.getText().trim(),
+                telefone,
+                txtAnotacoes.getText().trim()
+        );
+
+        pessoas.add(p);
+        limparCampos();
+        listarTodos();
+        JOptionPane.showMessageDialog(this, "Pessoa cadastrada com sucesso.");
+    }
+
+    private void consultar() {
+        String cod = txtCodigo.getText().trim();
+        String nome = txtNome.getText().trim();
+
+        if (!cod.isEmpty() && !nome.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Preencha apenas Código ou Nome.");
+            return;
+        }
+
+        if (!cod.isEmpty()) {
+            try {
+                int codigo = Integer.parseInt(cod);
+                Pessoa p = pessoas.stream().filter(x -> x.getCodigo() == codigo).findFirst().orElse(null);
+                if (p != null) preencherCampos(p);
+                else JOptionPane.showMessageDialog(this, "Pessoa não encontrada.");
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Código inválido.");
+            }
+        } else if (!nome.isEmpty()) {
+            List<Pessoa> resultados = new ArrayList<>();
+            for (Pessoa p : pessoas) {
+                if (p.getNome().equalsIgnoreCase(nome)) {
+                    resultados.add(p);
+                }
+            }
+            if (resultados.size() == 1) {
+                preencherCampos(resultados.get(0));
+            } else if (resultados.size() > 1) {
+                String[] opcoes = resultados.stream()
+                        .map(p -> "Código: " + p.getCodigo() + " - Tel: " + p.getTelefone())
+                        .toArray(String[]::new);
+                int sel = JOptionPane.showOptionDialog(this,
+                        "Mais de uma pessoa encontrada. Escolha uma:",
+                        "Consulta por Nome",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null, opcoes, opcoes[0]);
+                if (sel >= 0) preencherCampos(resultados.get(sel));
+            } else {
+                JOptionPane.showMessageDialog(this, "Nenhuma pessoa encontrada.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Informe Código ou Nome para consultar.");
+        }
+    }
+
+    private void alterar() {
+        if (txtCodigo.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Consulte uma pessoa primeiro.");
+            return;
+        }
+
+        try {
+            int codigo = Integer.parseInt(txtCodigo.getText());
+            Pessoa p = pessoas.stream().filter(x -> x.getCodigo() == codigo).findFirst().orElse(null);
+            if (p != null) {
+                p.setNome(txtNome.getText().trim());
+                p.setEndereco(txtEndereco.getText().trim());
+                p.setTelefone(txtTelefone.getText().trim());
+                p.setAnotacoes(txtAnotacoes.getText().trim());
+                listarTodos();
+                JOptionPane.showMessageDialog(this, "Dados alterados com sucesso.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Pessoa não encontrada.");
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Código inválido.");
+        }
+    }
+
+    private void excluir() {
+        if (txtCodigo.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Consulte uma pessoa primeiro.");
+            return;
+        }
+
+        try {
+            int codigo = Integer.parseInt(txtCodigo.getText());
+            boolean removido = pessoas.removeIf(p -> p.getCodigo() == codigo);
+            if (removido) {
+                listarTodos();
+                limparCampos();
+                JOptionPane.showMessageDialog(this, "Pessoa excluída.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Pessoa não encontrada.");
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Código inválido.");
+        }
+    }
+
+    private void listarTodos() {
+        modeloTabela.setRowCount(0);
+        for (Pessoa p : pessoas) {
+            modeloTabela.addRow(new Object[]{
+                    p.getCodigo(), p.getNome(), p.getTelefone()
+            });
+        }
+    }
+
+    private void limparCampos() {
+        txtCodigo.setText("");
+        txtNome.setText("");
+        txtEndereco.setText("");
+        txtTelefone.setText("");
+        txtAnotacoes.setText("");
+    }
+
+    private void preencherCampos(Pessoa p) {
+        txtCodigo.setText(String.valueOf(p.getCodigo()));
+        txtNome.setText(p.getNome());
+        txtEndereco.setText(p.getEndereco());
+        txtTelefone.setText(p.getTelefone());
+        txtAnotacoes.setText(p.getAnotacoes());
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(AgendaCompleta::new);
+    }
+
+    static class Pessoa {
+        private int codigo;
+        private String nome, endereco, telefone, anotacoes;
+
+        public Pessoa(int codigo, String nome, String endereco, String telefone, String anotacoes) {
+            this.codigo = codigo;
+            this.nome = nome;
+            this.endereco = endereco;
+            this.telefone = telefone;
+            this.anotacoes = anotacoes;
+        }
+
+        public int getCodigo() { return codigo; }
+        public String getNome() { return nome; }
+        public String getEndereco() { return endereco; }
+        public String getTelefone() { return telefone; }
+        public String getAnotacoes() { return anotacoes; }
+
+        public void setNome(String nome) { this.nome = nome; }
+        public void setEndereco(String endereco) { this.endereco = endereco; }
+        public void setTelefone(String telefone) { this.telefone = telefone; }
+        public void setAnotacoes(String anotacoes) { this.anotacoes = anotacoes; }
+    }
+}
