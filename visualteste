@@ -1,0 +1,80 @@
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+
+public class AgendaVisualCompleta extends JFrame {
+
+    private JTextField txtCodigo, txtNome, txtEndereco, txtTelefone, txtAnotacoes;
+    private JTable tabela;
+    private DefaultTableModel modeloTabela;
+
+    public AgendaVisualCompleta() {
+        setTitle("Agenda de Contatos - Visual Completo");
+        setSize(700, 500);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
+
+        // Painel de entrada de dados
+        JPanel painelDados = new JPanel(new GridLayout(5, 2, 8, 8));
+        painelDados.setBorder(new TitledBorder("Dados da Pessoa"));
+
+        txtCodigo = new JTextField(); txtCodigo.setEditable(false);
+        txtNome = new JTextField();
+        txtEndereco = new JTextField();
+        txtTelefone = new JTextField();
+        txtAnotacoes = new JTextField();
+
+        painelDados.add(new JLabel("Código:"));
+        painelDados.add(txtCodigo);
+        painelDados.add(new JLabel("Nome:"));
+        painelDados.add(txtNome);
+        painelDados.add(new JLabel("Endereço:"));
+        painelDados.add(txtEndereco);
+        painelDados.add(new JLabel("Telefone:"));
+        painelDados.add(txtTelefone);
+        painelDados.add(new JLabel("Anotações:"));
+        painelDados.add(txtAnotacoes);
+
+        add(painelDados, BorderLayout.NORTH);
+
+        // Painel da tabela
+        JPanel painelTabela = new JPanel(new BorderLayout());
+        painelTabela.setBorder(new TitledBorder("Contatos Cadastrados"));
+
+        modeloTabela = new DefaultTableModel(new String[]{"Código", "Nome", "Telefone"}, 0);
+        tabela = new JTable(modeloTabela);
+        JScrollPane scroll = new JScrollPane(tabela);
+        painelTabela.add(scroll, BorderLayout.CENTER);
+
+        add(painelTabela, BorderLayout.CENTER);
+
+        // Painel de botões
+        JPanel painelBotoes = new JPanel(new GridLayout(2, 3, 10, 10));
+        painelBotoes.setBorder(new TitledBorder("Ações"));
+
+        JButton btnCadastrar = new JButton("Cadastrar");
+        JButton btnConsultar = new JButton("Consultar");
+        JButton btnAlterar = new JButton("Alterar");
+        JButton btnExcluir = new JButton("Excluir");
+        JButton btnLimpar = new JButton("Limpar Campos");
+        JButton btnListar = new JButton("Listar Todos");
+
+        painelBotoes.add(btnCadastrar);
+        painelBotoes.add(btnConsultar);
+        painelBotoes.add(btnAlterar);
+        painelBotoes.add(btnExcluir);
+        painelBotoes.add(btnLimpar);
+        painelBotoes.add(btnListar);
+
+        add(painelBotoes, BorderLayout.SOUTH);
+
+      
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(AgendaVisualCompleta::new);
+    }
+}
